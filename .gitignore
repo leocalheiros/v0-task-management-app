@@ -25,3 +25,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# owasp dependency-check
+dependency-check-bin
+owasp-report
