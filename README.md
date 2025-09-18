@@ -7,9 +7,8 @@ Este é um app web para gestão de tarefas e controle de registros de tempo. Usu
 ### Arquitetura
 
 - **Frontend:** React + TypeScript
-- **Backend:** Endpoints REST (não detalhado aqui)
+- **Backend:** Endpoints REST
 - **Banco de Dados:** SQL (`tasks`, `time_records`)
-- **APIs:** Comunicação via funções `taskApi` e `timeRecordApi`
 
 #### Fluxo de Dados
 
@@ -17,14 +16,6 @@ Este é um app web para gestão de tarefas e controle de registros de tempo. Usu
 2. Ações disparam chamadas para o backend via API.
 3. Backend processa e retorna dados.
 4. Frontend atualiza a interface conforme resposta.
-
-### Principais Componentes
-
-- `ClientHomePage`: Página principal, exibe tarefas, busca, menu lateral, e integra os diálogos de criação.
-- `TaskCard`: Exibe informações de cada tarefa e seus registros de tempo.
-- `AddTaskDialog`: Modal para adicionar nova tarefa.
-- `AddTimeRecordDialog`: Modal para adicionar registro de tempo a uma tarefa.
-- `taskApi` / `timeRecordApi`: Funções para comunicação com backend.
 
 ### Funcionalidades
 
@@ -56,6 +47,7 @@ Este é um app web para gestão de tarefas e controle de registros de tempo. Usu
 - `lib/api.ts` — Funções de acesso à API.
 - `hooks/` — Hooks customizados.
 - `pages/` ou `app/` — Entradas de página.
+- `migrations/` — Inicialização do banco de dados.
 
 ### Dependências Principais
 
