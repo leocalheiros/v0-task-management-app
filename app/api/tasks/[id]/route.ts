@@ -39,23 +39,45 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const taskId = Number.parseInt(params.id)
-    const { name } = await request.json()
+    const { name, status } = await request.json()
 
     if (isNaN(taskId)) {
       return NextResponse.json({ error: "Invalid task ID" }, { status: 400 })
     }
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
-      return NextResponse.json({ error: "Task name is required" }, { status: 400 })
+    const updates: string[] = []
+    const values: any[] = []
+
+    if (name !== undefined) {
+      if (typeof name !== "string" || name.trim().length === 0) {
+        return NextResponse.json({ error: "Task name must be a non-empty string" }, { status: 400 })
+      }
+      updates.push("name = ?")
+      values.push(name.trim())
     }
+
+    if (status !== undefined) {
+      if (!["open", "done", "deleted", "canceled"].includes(status)) {
+        return NextResponse.json({ error: "Invalid status value" }, { status: 400 })
+      }
+      updates.push("status = ?")
+      values.push(status)
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ error: "No valid fields to update" }, { status: 400 })
+    }
+
+    updates.push("updated_at = CURRENT_TIMESTAMP")
+    values.push(taskId)
 
     const stmt = db.prepare(`
       UPDATE tasks 
-      SET name = ?, updated_at = CURRENT_TIMESTAMP 
+      SET ${updates.join(", ")} 
       WHERE id = ?
     `)
 
-    const result = stmt.run(name.trim(), taskId)
+    const result = stmt.run(...values)
 
     if (result.changes === 0) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 })

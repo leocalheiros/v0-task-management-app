@@ -4,29 +4,57 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Clock, User } from "lucide-react"
-import type { TimeRecord } from "@/lib/api"
-
-interface Task {
-  id: number
-  name: string
-  timeRecords: TimeRecord[]
-}
+import { EditTaskDialog } from "./edit-task-dialog"
+import type { Task } from "@/lib/api"
 
 interface TaskCardProps {
   task: Task
   onAddTimeRecord: (taskId: number) => void
+  onTaskUpdated: (updatedTask: Task) => void
 }
 
-export function TaskCard({ task, onAddTimeRecord }: TaskCardProps) {
-  const totalHours = task.timeRecords.reduce((total, record) => {
-    if (record.start_time && record.end_time) {
-      const start = new Date(`2000-01-01T${record.start_time}`)
-      const end = new Date(`2000-01-01T${record.end_time}`)
-      const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
-      return total + diff
+export function TaskCard({ task, onAddTimeRecord, onTaskUpdated }: TaskCardProps) {
+  const totalHours =
+    task.timeRecords?.reduce((total, record) => {
+      if (record.start_time && record.end_time) {
+        const start = new Date(`2000-01-01T${record.start_time}`)
+        const end = new Date(`2000-01-01T${record.end_time}`)
+        const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        return total + diff
+      }
+      return total
+    }, 0) || 0
+
+  const getStatusBadge = (status: Task["status"]) => {
+    switch (status) {
+      case "open":
+        return (
+          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+            Aberta
+          </Badge>
+        )
+      case "done":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-700">
+            Concluída
+          </Badge>
+        )
+      case "canceled":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-700">
+            Cancelada
+          </Badge>
+        )
+      case "deleted":
+        return (
+          <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+            Excluída
+          </Badge>
+        )
+      default:
+        return <Badge variant="secondary">{status}</Badge>
     }
-    return total
-  }, 0)
+  }
 
   return (
     <Card className="shadow-md rounded-xl border-gray-100 hover:shadow-lg transition-shadow duration-200 h-fit">
@@ -35,9 +63,15 @@ export function TaskCard({ task, onAddTimeRecord }: TaskCardProps) {
           <CardTitle className="text-[#3F0C29] text-lg font-semibold leading-tight text-balance flex-1 min-w-0">
             {task.name}
           </CardTitle>
-          <Badge variant="secondary" className="bg-[#3F0C29]/10 text-[#3F0C29] shrink-0">
-            {totalHours.toFixed(1)}h
-          </Badge>
+          <div className="flex flex-col gap-2 shrink-0">
+            <Badge variant="secondary" className="bg-[#3F0C29]/10 text-[#3F0C29]">
+              {totalHours.toFixed(1)}h
+            </Badge>
+            {getStatusBadge(task.status)}
+          </div>
+        </div>
+        <div className="flex justify-end pt-2">
+          <EditTaskDialog task={task} onTaskUpdated={onTaskUpdated} />
         </div>
       </CardHeader>
 
@@ -48,7 +82,7 @@ export function TaskCard({ task, onAddTimeRecord }: TaskCardProps) {
             Registros de Horas
           </h4>
 
-          {task.timeRecords.length === 0 ? (
+          {!task.timeRecords || task.timeRecords.length === 0 ? (
             <p className="text-sm text-gray-500 italic">Nenhum registro ainda</p>
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -89,6 +123,7 @@ export function TaskCard({ task, onAddTimeRecord }: TaskCardProps) {
         <Button
           onClick={() => onAddTimeRecord(task.id)}
           className="w-full bg-[#3F0C29] hover:bg-[#3F0C29]/90 text-white transition-colors duration-200"
+          disabled={task.status === "deleted"}
         >
           <Plus className="mr-2 h-4 w-4" />
           <span className="hidden sm:inline">Adicionar Registro de Hora</span>

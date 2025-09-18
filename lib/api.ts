@@ -11,6 +11,7 @@ export interface TimeRecord {
 export interface Task {
   id: number
   name: string
+  status: "open" | "done" | "deleted" | "canceled"
   created_at: string
   updated_at: string
   timeRecords?: TimeRecord[]
@@ -55,13 +56,19 @@ export const taskApi = {
   },
 
   // Update a task
-  async updateTask(id: number, name: string): Promise<Task> {
+  async updateTask(
+    id: number,
+    updates: {
+      name?: string
+      status?: "open" | "done" | "deleted" | "canceled"
+    },
+  ): Promise<Task> {
     const response = await fetch(`/api/tasks/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(updates),
     })
     if (!response.ok) {
       throw new Error("Failed to update task")

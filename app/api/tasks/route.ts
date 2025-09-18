@@ -4,6 +4,7 @@ import db from "@/lib/database"
 export interface Task {
   id: number
   name: string
+  status: "open" | "done" | "deleted" | "canceled"
   created_at: string
   updated_at: string
 }
@@ -11,7 +12,7 @@ export interface Task {
 // GET /api/tasks - List all tasks
 export async function GET() {
   try {
-    const stmt = db.prepare("SELECT * FROM tasks ORDER BY created_at DESC")
+    const stmt = db.prepare("SELECT * FROM tasks WHERE status != 'deleted' ORDER BY created_at DESC")
     const tasks = stmt.all() as Task[]
 
     return NextResponse.json({ tasks })
@@ -31,8 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const stmt = db.prepare(`
-      INSERT INTO tasks (name) 
-      VALUES (?)
+      INSERT INTO tasks (name, status) 
+      VALUES (?, 'open')
     `)
 
     const result = stmt.run(name.trim())
