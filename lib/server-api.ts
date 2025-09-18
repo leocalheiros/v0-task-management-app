@@ -6,7 +6,7 @@ export const serverTaskApi = {
   // Get all tasks from database directly
   async getTasks(): Promise<Task[]> {
     const stmt = db.prepare(`
-      SELECT id, name, created_at, updated_at 
+      SELECT id, name, created_at, updated_at, status 
       FROM tasks 
       ORDER BY created_at DESC
     `)

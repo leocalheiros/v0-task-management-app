@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, FileText, Calendar, Users, Clock } from "lucide-react"
+import { Loader2, FileText, Calendar, Users, Clock, Copy, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface ReportData {
@@ -27,6 +27,7 @@ export function ReportsDialog() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [reportData, setReportData] = useState<ReportData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isCopied, setIsCopied] = useState(false)
   const { toast } = useToast()
 
   const generateReport = async () => {
@@ -64,6 +65,29 @@ export function ReportsDialog() {
       })
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const copyToClipboard = async () => {
+    if (!reportData?.report) return
+
+    try {
+      await navigator.clipboard.writeText(reportData.report)
+      setIsCopied(true)
+      
+      toast({
+        title: "Relatório copiado!",
+        description: "O texto do relatório foi copiado para a área de transferência.",
+      })
+
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (error) {
+      toast({
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar o relatório. Tente selecionar e copiar manualmente.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -185,13 +209,33 @@ export function ReportsDialog() {
               {/* AI Report */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Relatório Gerado por IA
-                    <Badge variant="secondary" className="ml-auto">
-                      OpenAI GPT-4.1
-                    </Badge>
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      <CardTitle>Relatório Gerado por IA</CardTitle>
+                      <Badge variant="secondary">
+                        OpenAI GPT-4.1
+                      </Badge>
+                    </div>
+                    <Button
+                      onClick={copyToClipboard}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-transparent"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="h-4 w-4 text-green-500" />
+                          Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copiar
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-gray-50 rounded-lg p-4 border">
