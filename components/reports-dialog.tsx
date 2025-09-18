@@ -189,7 +189,7 @@ export function ReportsDialog() {
                     <FileText className="h-5 w-5" />
                     Relatório Gerado por IA
                     <Badge variant="secondary" className="ml-auto">
-                      OpenAI GPT-3.5
+                      OpenAI GPT-4.1
                     </Badge>
                   </CardTitle>
                 </CardHeader>

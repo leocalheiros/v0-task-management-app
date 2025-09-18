@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import db from "@/lib/database"
+import { db } from "@/lib/database"
 
 export interface TimeRecord {
   id: number

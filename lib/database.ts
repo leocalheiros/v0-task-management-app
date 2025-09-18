@@ -16,7 +16,7 @@ const db = new Database(dbPath)
 // Enable foreign keys
 db.pragma("foreign_keys = ON")
 
-export async function initializeDatabase() {
+async function initializeDatabase() {
   const migrationRunner = new MigrationRunner(db)
   await migrationRunner.runMigrations()
 }
@@ -24,4 +24,6 @@ export async function initializeDatabase() {
 // Initialize database on import
 initializeDatabase().catch(console.error)
 
-export default db
+export {
+  db, initializeDatabase
+} 

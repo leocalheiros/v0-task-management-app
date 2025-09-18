@@ -1,17 +1,39 @@
 import { NextResponse } from "next/server"
-import { initializeDatabase } from "@/lib/database"
+import { db, initializeDatabase } from "@/lib/database"
+import { Task } from "../tasks/route"
 
-const REPORT_PROMPT = `Usando as informações da tabela a seguir, gere um relatório em texto plano que informa quais pessoas estão trabalhando em quais tarefas. Uma pessoa está trabalhando em uma tarefa se ela tem horas registradas naquela tarefa com status ABERTO. Uma pessoa não está trabalhando em uma tarefa se não tiver horas lançadas em uma tarefa com status ABERTO. As informações devem ser coletadas a partir das próximas linhas:
+const REPORT_PROMPT = `
+Usando as informações da tabela a seguir, gere um relatório em texto plano que informa quais pessoas estão trabalhando em quais tarefas.
+
+Responda APENAS com o relatório em texto plano, sem nenhuma explicação ou avaliação
+
+Uma pessoa está trabalhando em uma tarefa se ela tem horas registradas naquela tarefa com status ABERTO.
+
+Uma pessoa não está trabalhando em uma tarefa se não tiver horas lançadas em uma tarefa com status ABERTO.
+
+As informações devem ser coletadas a partir das próximas linhas:
 
 *Informação dos apontamentos que virão de uma consulta SQL*
 
-Exemplo:
+Exemplo de entrada:
+"""
 id;name;created_at;updated_at;status;
 1;teste;2025-09-18 18:51:41;2025-09-18 19:48:22;open
 
 id;task_id;responsible;start_time;end_time;created_at;
 1;1;teste;19:00;20:00;2025-09-18 18:51:49
+"""
 
+Exemplo de saída:
+"""
+Pessoa: teste
+  Não está trabalhando em nenhuma tarefa
+
+Pessoa: teste2
+  Trabalhando na tarefa: teste2
+"""
+
+Dados de entrada do select gerado:
 `
 
 export async function POST() {
@@ -25,21 +47,25 @@ export async function POST() {
       )
     }
 
-    const db = await initializeDatabase()
+    await initializeDatabase()
 
     // Get all tasks
-    const tasks = await db.all(`
+    const tasksPrepare = db.prepare(`
       SELECT id, name, created_at, updated_at, status
       FROM tasks
       ORDER BY created_at DESC
     `)
+    
+    const tasks = tasksPrepare.all() as Task[]
 
     // Get all time records
-    const timeRecords = await db.all(`
+    const timeRecordsPrepare = db.prepare(`
       SELECT id, task_id, responsible, start_time, end_time, created_at
       FROM time_records
       ORDER BY created_at DESC
     `)
+
+    const timeRecords = timeRecordsPrepare.all()
 
     // Format data for the AI prompt
     let dataForAI = REPORT_PROMPT + "\n\nTasks:\n"
@@ -64,7 +90,7 @@ export async function POST() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4.1-2025-04-14",
         messages: [
           {
             role: "user",

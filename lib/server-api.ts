@@ -1,4 +1,4 @@
-import db from "./database"
+import { db } from "./database"
 import type { Task, TimeRecord } from "./api"
 
 // Server-side task functions

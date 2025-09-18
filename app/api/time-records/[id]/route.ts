@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import db from "@/lib/database"
+import { db } from "@/lib/database"
 
 // GET /api/time-records/[id] - Get a specific time record
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
