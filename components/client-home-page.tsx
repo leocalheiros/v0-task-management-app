@@ -115,6 +115,15 @@ export function ClientHomePage({ initialTasks, initialError }: ClientHomePagePro
     }
   }
 
+  const handleTaskUpdated = (updatedTask: Task) => {
+    setTasks((prevTasks) => prevTasks.map((task) => (task.id === updatedTask.id ? { ...task, ...updatedTask } : task)))
+    toast({
+      variant: "success",
+      title: "Sucesso",
+      description: "Tarefa atualizada com sucesso!",
+    })
+  }
+
   const addTimeRecord = (taskId: number) => {
     const task = tasks.find((t) => t.id === taskId)
     if (task) {
@@ -156,6 +165,36 @@ export function ClientHomePage({ initialTasks, initialError }: ClientHomePagePro
         })
       }
     }
+  }
+
+  const handleTimeRecordUpdated = (updatedTimeRecord: TimeRecord) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => ({
+        ...task,
+        timeRecords: task.timeRecords.map((record) =>
+          record.id === updatedTimeRecord.id ? updatedTimeRecord : record,
+        ),
+      })),
+    )
+    toast({
+      variant: "success",
+      title: "Sucesso",
+      description: "Registro de hora atualizado com sucesso!",
+    })
+  }
+
+  const handleTimeRecordDeleted = (timeRecordId: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => ({
+        ...task,
+        timeRecords: task.timeRecords.filter((record) => record.id !== timeRecordId),
+      })),
+    )
+    toast({
+      variant: "success",
+      title: "Sucesso",
+      description: "Registro de hora excluído com sucesso!",
+    })
   }
 
   const filteredTasks = tasks.filter((task) => task.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -289,7 +328,14 @@ export function ClientHomePage({ initialTasks, initialError }: ClientHomePagePro
           ) : (
             <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
               {filteredTasks.map((task) => (
-                <TaskCard key={task.id} task={task} onAddTimeRecord={addTimeRecord} />
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onAddTimeRecord={addTimeRecord}
+                  onTaskUpdated={handleTaskUpdated}
+                  onTimeRecordUpdated={handleTimeRecordUpdated}
+                  onTimeRecordDeleted={handleTimeRecordDeleted}
+                />
               ))}
             </div>
           )}
