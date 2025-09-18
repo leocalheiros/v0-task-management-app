@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { TaskCard } from "@/components/task-card"
 import { AddTaskDialog } from "@/components/add-task-dialog"
 import { AddTimeRecordDialog } from "@/components/add-time-record-dialog"
+import { ReportsDialog } from "@/components/reports-dialog"
 import { taskApi, timeRecordApi, type Task, type TimeRecord } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
@@ -311,7 +312,10 @@ export function ClientHomePage({ initialTasks, initialError }: ClientHomePagePro
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-2xl font-bold text-[#3F0C29] text-balance">Gestão de Tarefas</h2>
-            <AddTaskDialog onAddTask={addTask} />
+            <div className="flex gap-2">
+              <ReportsDialog />
+              <AddTaskDialog onAddTask={addTask} />
+            </div>
           </div>
 
           {filteredTasks.length === 0 ? (
