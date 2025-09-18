@@ -91,3 +91,8 @@ Este é um app web para gestão de tarefas e controle de registros de tempo. Usu
 ### Relatórios com ChatGPT
 
 A aplicação disponibiliza um botão específico para geração de relatórios. Ao utilizá-lo, o usuário obtém um relatório completo com informações detalhadas sobre as tarefas e os registros de tempo, incluindo a identificação dos colaboradores responsáveis por cada atividade e aqueles que ainda não iniciaram ou concluíram suas tarefas.
+
+### Problemas de segurança encontrados
+
+- A IA adicionou automaticamente dependências que apresentaram **vulnerabilidades médias e altas**, identificadas após análise.  
+- A forma de implementação sugerida pela IA resultou em um **código com alto risco de manutenção**, devido à baixa padronização e acoplamento elevado.  
